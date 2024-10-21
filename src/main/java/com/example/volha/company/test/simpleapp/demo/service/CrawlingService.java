@@ -1,7 +1,7 @@
-package com.example.volha.opsec.test.simpleapp.demo.service;
+package com.example.volha.company.test.simpleapp.demo.service;
 
-import com.example.volha.opsec.test.simpleapp.demo.data.CrawlSummary;
-import com.example.volha.opsec.test.simpleapp.demo.repository.CrawlSummaryRepository;
+import com.example.volha.company.test.simpleapp.demo.data.CrawlSummary;
+import com.example.volha.company.test.simpleapp.demo.repository.CrawlSummaryRepository;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,6 +27,15 @@ public class CrawlingService {
     private CrawlSummaryRepository crawlSummaryRepository;
 
     public CrawlSummary crawl(int crawlDepth, String stringUrl) {
+        try {
+            if (crawlDepth < 1) {
+                logger.error("crawl depth cannot be less than 1, but got: {}", crawlDepth);
+                throw new IllegalArgumentException("crawl depth cannot be less than 1, but got: " + crawlDepth);
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("crawl depth is set to 1 for this crawling");
+            crawlDepth = 1;
+        }
         List<String> crawledUrls = new ArrayList<>();
         CrawlSummary crawlSummary = new CrawlSummary(stringUrl,
                 0,
@@ -35,8 +44,8 @@ public class CrawlingService {
                 0);
 
         crawlOneLevel(crawlDepth, 1, stringUrl, crawledUrls, crawlSummary);
-
         crawlSummaryRepository.save(crawlSummary);
+        logger.info("Crawl summary for url {} was saved to the repository", stringUrl);
         return crawlSummary;
     }
 
@@ -56,6 +65,9 @@ public class CrawlingService {
 
                     for ( Element link : urlContentLinks ) {
                         String nextLink = link.absUrl("href");
+                        String linkText = link.text();
+
+                        logger.info("Found link: {} with text: {}", nextLink, linkText);
 
                         incrementLinksCount(crawlSummary, rootUrl, nextLink);
 
@@ -67,7 +79,7 @@ public class CrawlingService {
 
                 } catch (MalformedURLException e) {
                     crawlSummary.incrementUnknownLinks();
-                    e.printStackTrace();
+                    logger.error("Error while fetching URL {}: {}", stringUrl, e.getMessage(), e);
                 }
             }
         }
@@ -98,10 +110,6 @@ public class CrawlingService {
         } catch (IOException e) {
             return null;
         }
-    }
-
-    public void save(CrawlSummary crawlSummary) {
-        crawlSummaryRepository.save(crawlSummary);
     }
 
     public List<CrawlSummary> findAll() {

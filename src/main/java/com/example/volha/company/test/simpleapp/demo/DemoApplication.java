@@ -1,4 +1,4 @@
-package com.example.volha.opsec.test.simpleapp.demo;
+package com.example.volha.company.test.simpleapp.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,6 +1,6 @@
-package com.example.volha.opsec.test.simpleapp.demo.repository;
+package com.example.volha.company.test.simpleapp.demo.repository;
 
-import com.example.volha.opsec.test.simpleapp.demo.data.CrawlSummary;
+import com.example.volha.company.test.simpleapp.demo.data.CrawlSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

@@ -1,4 +1,4 @@
-package com.example.volha.opsec.test.simpleapp.demo.data;
+package com.example.volha.company.test.simpleapp.demo.data;
 
 
 public class CrawlSummary {
