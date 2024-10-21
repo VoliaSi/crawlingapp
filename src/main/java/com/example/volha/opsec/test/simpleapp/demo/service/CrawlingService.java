@@ -7,6 +7,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,34 +21,33 @@ import java.util.List;
 
 @Service
 public class CrawlingService {
+    private static final Logger logger = LoggerFactory.getLogger(CrawlingService.class);
 
     @Autowired
     private CrawlSummaryRepository crawlSummaryRepository;
 
-
     public CrawlSummary crawl(int crawlDepth, String stringUrl) {
-
-//            public void incrementInternalLinks() {
-//                internalLinks.incrementAndGet();  // Atomic increment
-//            }
         List<String> crawledUrls = new ArrayList<>();
         CrawlSummary crawlSummary = new CrawlSummary(stringUrl,
+                0,
                 0,
                 0,
                 0);
 
         crawlOneLevel(crawlDepth, 1, stringUrl, crawledUrls, crawlSummary);
 
+        crawlSummaryRepository.save(crawlSummary);
         return crawlSummary;
     }
 
-    private void crawlOneLevel(int crawlDepth, int currDepth, String stringUrl, List<String> crawledUrls, CrawlSummary crawlSummary) {
+    private void crawlOneLevel(int crawlDepth, int currDepth, String
+            stringUrl, List<String> crawledUrls, CrawlSummary crawlSummary) {
         if (currDepth <= crawlDepth) {
             Document urlContent = getUrlContent(stringUrl, crawledUrls);
 
             if (urlContent != null) {
                 Elements urlContentLinks = urlContent.select("a[href]");
-                System.out.println("urlContentLinks " + urlContentLinks.size());
+                logger.info("General found links number: {}", urlContentLinks.size());
                 Elements imgs = urlContent.select("img[src]");
                 crawlSummary.incrementImages(imgs.size());
 
@@ -57,8 +58,6 @@ public class CrawlingService {
                         String nextLink = link.absUrl("href");
 
                         incrementLinksCount(crawlSummary, rootUrl, nextLink);
-                        // Optionally, extract link text
-                        String linkText = link.text();
 
                         if (!crawledUrls.contains(nextLink)) {
                             crawlOneLevel(crawlDepth, currDepth++, nextLink, crawledUrls, crawlSummary);
@@ -67,14 +66,15 @@ public class CrawlingService {
 
 
                 } catch (MalformedURLException e) {
-                    // throw new exception
+                    crawlSummary.incrementUnknownLinks();
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    private void incrementLinksCount(CrawlSummary crawlSummary, String rootUrl, String nextLink) throws MalformedURLException {
+    private void incrementLinksCount(CrawlSummary crawlSummary, String rootUrl, String nextLink) throws
+            MalformedURLException {
         if (new URL(nextLink).getHost().equals(rootUrl)) {
             crawlSummary.incrementInternalLinks();
         } else {
@@ -88,8 +88,8 @@ public class CrawlingService {
             Document document = connection.get();
 
             if (connection.response().statusCode() == 200) {
-                System.out.println("Link " + stringUrl);
-                System.out.println("Root " + document.title());
+                logger.info("log Found link: {}", stringUrl);
+                logger.info(" log link {} has root: {}", stringUrl, document.title());
                 crawledUrls.add(stringUrl);
                 return document;
             } else {
@@ -100,17 +100,11 @@ public class CrawlingService {
         }
     }
 
-
-    public CrawlSummary saveCrawlSummary(CrawlSummary crawlSummary) {
-        return crawlSummaryRepository.save(crawlSummary);
+    public void save(CrawlSummary crawlSummary) {
+        crawlSummaryRepository.save(crawlSummary);
     }
 
-    public List<CrawlSummary> getAllCrawlSummaries() {
+    public List<CrawlSummary> findAll() {
         return crawlSummaryRepository.findAll();
     }
-
-    public CrawlSummary getCrawlSummaryById(Long id) {
-        return crawlSummaryRepository.findById(id).orElse(null);
-    }
-
 }

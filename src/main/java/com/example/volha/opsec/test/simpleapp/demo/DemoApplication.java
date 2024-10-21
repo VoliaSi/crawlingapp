@@ -2,8 +2,10 @@ package com.example.volha.opsec.test.simpleapp.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
-@SpringBootApplication(scanBasePackages = "com.example.volha.opsec.test.simpleapp.demo")
+@SpringBootApplication
+@EntityScan(basePackages = {"com.example.volha.opsec.test.simpleapp.demo.data"})
 public class DemoApplication {
 
     public static void main(String[] args) {
