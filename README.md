@@ -70,8 +70,11 @@ GET "http://localhost:8080/demo/crawl"
 
 ## My approach to solving the problem and assumptions made
 I consider this app as an initial version of some crawling Application.
+
 H2 database was used because it is an embedded one - to avoid additional configuration. It also supports some No-SQL features, but they were not used in this version, as the final decision on the database to use is not made.
+
 Jsoup was used for parsing HTML as the most known library. It doesn't natively execute JavaScript embedded within web pages, which is a challenge for working with modern web-sites. JavaScript parsing is left for the next release. This will probably need using another library or some manual processing. Now such links are carefully logged, counted and classified as "Unknown links".
+
 Testing was performed with unit tests and sending requests with Postman.
 
 The main challenge for me was my fear of navigating internet using Java code, as I'm absolutely new to web crawling and web scrapping, so I haven't tested the application thoroughly.
