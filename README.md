@@ -56,6 +56,10 @@ depth: The maximum depth to crawl (default is 1).
 
 Example:
 
+POST "http://localhost:8080/demo/crawl?url=http://example.com"
+
+or
+
 POST "http://localhost:8080/demo/crawl?url=http://example.com&depth=2"
 
 #### Get All Crawl Summaries
@@ -79,4 +83,6 @@ Testing was performed with unit tests and sending requests with Postman.
 
 The main challenge for me was my fear of navigating internet using Java code, as I'm absolutely new to web crawling and web scrapping, so I haven't tested the application thoroughly.
 In addition, most logic is in private methods and I preferred my approach to creating more tests.
+
+Also as I'm not strong in concurrency, I haven't found good solution to add concurrency to my recursive function. Probably, I need to make the code more "plain" or "flat". Moreover, the only idea I have is to create a separate thread for each link found at the first page.
 
